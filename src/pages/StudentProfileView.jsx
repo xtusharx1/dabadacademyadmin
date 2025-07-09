@@ -116,7 +116,7 @@ const InfoSection = ({ title, icon: Icon, children, color = "bg-blue-500" }) => 
     </div>
   );
 
-  const DocumentCard = ({ title, documentKey, icon: Icon, available }) => (
+  const DocumentCard = ({ title, documentKey, icon: Icon, available, url }) => (
     <div className={`p-4 rounded-xl border-2 transition-all hover:shadow-md ${
       available 
         ? 'border-green-200 bg-green-50 hover:border-green-300' 
@@ -143,10 +143,16 @@ const InfoSection = ({ title, icon: Icon, children, color = "bg-blue-500" }) => 
             </span>
           </div>
         </div>
-        {available && (
-          <button className="p-2 hover:bg-green-100 rounded-lg transition-colors">
+        {available && url && (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 hover:bg-green-100 rounded-lg transition-colors"
+            title="View Document"
+          >
             <Eye className="w-4 h-4 text-green-600" />
-          </button>
+          </a>
         )}
       </div>
     </div>
@@ -345,36 +351,42 @@ const InfoSection = ({ title, icon: Icon, children, color = "bg-blue-500" }) => 
                         documentKey="birth_certificate"
                         icon={FileText}
                         available={!!(documentsData?.birth_certificate)}
+                        url={documentsData?.birth_certificate}
                       />
                       <DocumentCard
                         title="Student Aadhaar"
                         documentKey="student_adhaar_card"
                         icon={CreditCard}
                         available={!!(documentsData?.student_adhaar_card)}
+                        url={documentsData?.student_adhaar_card}
                       />
                       <DocumentCard
                         title="Father's Aadhaar"
                         documentKey="father_adhaar_card"
                         icon={CreditCard}
                         available={!!(documentsData?.father_adhaar_card)}
+                        url={documentsData?.father_adhaar_card}
                       />
                       <DocumentCard
                         title="Mother's Aadhaar"
                         documentKey="mother_adhaar_card"
                         icon={CreditCard}
                         available={!!(documentsData?.mother_adhaar_card)}
+                        url={documentsData?.mother_adhaar_card}
                       />
                       <DocumentCard
                         title="Previous Marksheet"
                         documentKey="previous_school_marksheet"
                         icon={BookOpen}
                         available={!!(documentsData?.previous_school_marksheet)}
+                        url={documentsData?.previous_school_marksheet}
                       />
                       <DocumentCard
                         title="Leaving Certificate"
                         documentKey="school_leaving_certificate"
                         icon={FileText}
                         available={!!(documentsData?.school_leaving_certificate)}
+                        url={documentsData?.school_leaving_certificate}
                       />
                     </div>
                   </div>
