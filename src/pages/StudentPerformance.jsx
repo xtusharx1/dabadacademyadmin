@@ -16,6 +16,8 @@ const StudentPerformance = () => {
   const [testStatistics, setTestStatistics] = useState({});
   const [testDetails, setTestDetails] = useState({});
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
     const fetchBatchDetails = async () => {
@@ -86,7 +88,14 @@ const StudentPerformance = () => {
           return { ...record, rank };
         })
       );
-      setTestRecords(recordsWithRank);
+      // sort by test date descending if available, else by created_at
+      const sorted = recordsWithRank.sort((a, b) => {
+        const da = new Date((testDetails[a.test_id]?.date) || a.created_at);
+        const db = new Date((testDetails[b.test_id]?.date) || b.created_at);
+        return db - da;
+      });
+      setTestRecords(sorted);
+      setCurrentPage(1);
       // Fetch statistics for each test record
       recordsWithRank.forEach(record => {
         fetchTestStatistics(record.test_id);
@@ -331,7 +340,8 @@ const StudentPerformance = () => {
 </TableHead>
 
                 <TableBody>
-                  {testRecords.map((record, index) => {
+                  {testRecords.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage).map((record, idx) => {
+                    const index = (currentPage - 1) * rowsPerPage + idx;
                     const totalMarks = testDetails[record.test_id]?.total_marks || 100;
                     const percentage = (record.marks_obtained / totalMarks) * 100;
                     const averageMarks = testStatistics[record.test_id]?.average_marks;
@@ -380,6 +390,61 @@ const StudentPerformance = () => {
                 </TableBody>
               </Table>
             </TableContainer>
+            {/* Pagination Controls */}
+            {testRecords.length > rowsPerPage && (
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+                <Typography variant="body2">
+                  Showing {((currentPage - 1) * rowsPerPage) + 1}-{Math.min(currentPage * rowsPerPage, testRecords.length)} of {testRecords.length}
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <button
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className={`px-3 py-1 rounded-md ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'}`}
+                  >
+                    Previous
+                  </button>
+                  {Array.from({ length: Math.min(5, Math.ceil(testRecords.length / rowsPerPage)) }).map((_, idx) => {
+                    const totalPages = Math.ceil(testRecords.length / rowsPerPage);
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = idx + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = idx + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + idx;
+                    } else {
+                      pageNum = currentPage - 2 + idx;
+                    }
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`px-3 py-1 rounded-md ${currentPage === pageNum ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'}`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                  <button
+                    onClick={() => setCurrentPage(Math.min(Math.ceil(testRecords.length / rowsPerPage), currentPage + 1))}
+                    disabled={currentPage === Math.ceil(testRecords.length / rowsPerPage)}
+                    className={`px-3 py-1 rounded-md ${currentPage === Math.ceil(testRecords.length / rowsPerPage) ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'}`}
+                  >
+                    Next
+                  </button>
+                  <select
+                    className="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white"
+                    value={rowsPerPage}
+                    onChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setCurrentPage(1); }}
+                  >
+                    {[10, 20, 50].map(sz => (
+                      <option key={sz} value={sz}>{sz} / page</option>
+                    ))}
+                  </select>
+                </Box>
+              </Box>
+            )}
           </Card>
         )}
       </Container>

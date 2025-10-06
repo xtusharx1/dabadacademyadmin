@@ -6,6 +6,8 @@ const TeacherReports = () => {
   const [subjects, setSubjects] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [reportsPerPage] = useState(50);
+  const [selectedBatchId, setSelectedBatchId] = useState('all');
+  const [selectedTeacher, setSelectedTeacher] = useState('all');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,13 +53,24 @@ const TeacherReports = () => {
     fetchData();
   }, []);
 
-  // Get current reports
+  // Build filter options
+  const batchOptions = [{ id: 'all', name: 'All Batches' }, ...Object.entries(batches).map(([id, name]) => ({ id, name }))];
+  const teacherOptions = [{ id: 'all', name: 'All Teachers' }, ...Array.from(new Set(reports.map(r => r.teacher_name))).map(name => ({ id: name, name }))];
+
+  // Apply filters
+  const filteredReports = reports.filter(r => {
+    const batchOk = selectedBatchId === 'all' || String(r.batch_id) === String(selectedBatchId);
+    const teacherOk = selectedTeacher === 'all' || r.teacher_name === selectedTeacher;
+    return batchOk && teacherOk;
+  });
+
+  // Pagination based on filtered results
   const indexOfLastReport = currentPage * reportsPerPage;
   const indexOfFirstReport = indexOfLastReport - reportsPerPage;
-  const currentReports = reports.slice(indexOfFirstReport, indexOfLastReport);
+  const currentReports = filteredReports.slice(indexOfFirstReport, indexOfLastReport);
 
   // Calculate total pages
-  const totalPages = Math.ceil(reports.length / reportsPerPage);
+  const totalPages = Math.ceil(filteredReports.length / reportsPerPage) || 1;
 
   // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -73,7 +86,35 @@ const TeacherReports = () => {
         boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
         marginTop: '10px'
       }}>
-        <h1 className="text-2xl font-bold mb-4">Teacher Reports</h1>
+        <div className="flex items-start justify-between mb-4">
+          <h1 className="text-2xl font-bold">Teacher Reports</h1>
+          <div className="flex items-center gap-3">
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Batch</label>
+              <select
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white"
+                value={selectedBatchId}
+                onChange={(e) => { setSelectedBatchId(e.target.value); setCurrentPage(1); }}
+              >
+                {batchOptions.map(opt => (
+                  <option key={opt.id} value={opt.id}>{opt.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Teacher</label>
+              <select
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white"
+                value={selectedTeacher}
+                onChange={(e) => { setSelectedTeacher(e.target.value); setCurrentPage(1); }}
+              >
+                {teacherOptions.map(opt => (
+                  <option key={opt.id} value={opt.id}>{opt.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-base mt-5 bg-white dark:bg-gray-800 border border-gray-300">
             <thead>

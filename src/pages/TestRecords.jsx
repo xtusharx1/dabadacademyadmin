@@ -52,6 +52,8 @@ const TestRecords = () => {
     fetchData();
   }, []);
 
+  // (pagination clamp effect removed to revert to previous behavior)
+
   // Get current records
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
@@ -120,7 +122,10 @@ const TestRecords = () => {
 
       if (response.ok) {
         const updatedTest = await response.json();
-        setTestRecords(testRecords.map(test => (test.test_id === updatedTest.test_id ? updatedTest : test)));
+        setTestRecords(prev => prev
+          .map(test => (test.test_id === updatedTest.test_id ? updatedTest : test))
+          .sort((a, b) => new Date(b.date) - new Date(a.date))
+        );
         setShowEditModal(false);
       } else {
         alert('Failed to update test. Please try again.');
