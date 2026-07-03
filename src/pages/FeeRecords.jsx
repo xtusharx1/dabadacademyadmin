@@ -694,7 +694,7 @@ const fetchStudentsByBatch = useCallback(async (batchId) => {
         try {
           // Parallel requests for each student
           const [feeResponse, userResponse] = await Promise.all([
-            fetch(`${BASE_URL}/api/feestatus/user/${student.user_id}`),
+            fetch(`${BASE_URL}/api/feestatus/user/${student.user_id}?batch_id=${batchId}`),
             fetch(`${BASE_URL}/api/users/user/${student.user_id}`)
           ]);
           
@@ -1056,6 +1056,7 @@ const handleSubmitFeeStatus = useCallback(async (e) => {
         remainingFees: 0, // remaining = total
         nextDueDate: null,  // set nextDueDate to null
         user_id: selectedStudent.user_id,
+        batch_id: selectedBatch,
       }),
     });
 
