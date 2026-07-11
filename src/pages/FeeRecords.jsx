@@ -586,13 +586,50 @@ const fetchData = useCallback(async () => {
     
     // Parallel API requests for better performance
     const [batchesRes, feeSummaryRes] = await Promise.all([
-      fetch(`${BASE_URL}/api/batches/all`),
+      fetch(`${BASE_URL}/api/batches`),
       fetch(`${BASE_URL}/api/feestatus/summary`)
     ]);
     
     if (batchesRes.ok) {
       const batchesData = await batchesRes.json();
-      setBatches(batchesData);
+      
+      // Helper function to extract class number for sorting
+      const getClassNumber = (name) => {
+        if (!name) return 999;
+        const lowerName = name.toLowerCase();
+        
+        const classMatch = lowerName.match(/\bclass\s+(\d+)/);
+        if (classMatch) {
+          return parseInt(classMatch[1], 10);
+        }
+        
+        const ordinalMatch = lowerName.match(/\b(\d+)(?:st|nd|rd|th)\b/);
+        if (ordinalMatch) {
+          return parseInt(ordinalMatch[1], 10);
+        }
+        
+        const cleanName = lowerName.replace(/\b\d{4}-\d{2,4}\b/g, '').replace(/\b\d{4}\b/g, '');
+        const numberMatch = cleanName.match(/\b(\d{1,2})\b/);
+        if (numberMatch) {
+          return parseInt(numberMatch[1], 10);
+        }
+        
+        return 999;
+      };
+
+      // Filter active and sort by class
+      const activeSortedBatches = batchesData
+        .filter(batch => batch.is_active !== false)
+        .sort((a, b) => {
+          const classA = getClassNumber(a.batch_name);
+          const classB = getClassNumber(b.batch_name);
+          if (classA !== classB) {
+            return classA - classB;
+          }
+          return (a.batch_name || '').localeCompare(b.batch_name || '');
+        });
+
+      setBatches(activeSortedBatches);
     }
     
     if (feeSummaryRes.ok) {
