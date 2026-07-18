@@ -5,7 +5,7 @@ import {
   FiChevronDown, FiChevronRight, FiVideo, FiCalendar,
   FiGrid, FiLogOut, FiUserPlus, FiFile,
   FiMessageCircle, FiEdit, FiAward,
-  FiBarChart, FiClipboard, FiClock, FiUserCheck, FiMap
+  FiBarChart, FiClipboard, FiClock, FiUserCheck, FiMap, FiGift
 } from 'react-icons/fi';
 
 const Sidebar = ({ role }) => {
@@ -79,6 +79,7 @@ const Sidebar = ({ role }) => {
           { path: '/notice', name: 'Notice', icon: <FiClipboard className="text-xl" /> },
           { path: '/attendance', name: 'Attendance', icon: <FiCalendar className="text-xl" /> },
           { path: '/view-attendance', name: 'View Attendance', icon: <FiCalendar className="text-xl" /> },
+          { path: '/birthdays', name: 'Birthdays', icon: <FiGift className="text-xl" /> },
         ],
       },
       {
@@ -151,6 +152,7 @@ const Sidebar = ({ role }) => {
           { path: '/notice', name: 'Notice', icon: <FiClipboard className="text-xl" /> },
           { path: '/view-attendance', name: 'View Attendance', icon: <FiCalendar className="text-xl" /> },
           { path: '/students', name: 'Students', icon: <FiUsers className="text-xl" /> },
+          { path: '/birthdays', name: 'Birthdays', icon: <FiGift className="text-xl" /> },
         ],
       },
     ],

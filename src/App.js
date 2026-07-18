@@ -23,6 +23,7 @@ import SchoolMap from './pages/SchoolMap';
 import ClassRecords from './pages/ClassRecord';
 import TeacherReports from './pages/TeacherReports';
 import Notice from './pages/Notice';
+import Birthdays from './pages/Birthdays';
 import ProfileView from './pages/StudentProfileView'; // Add this import
 import path from 'path-browserify';
 
@@ -67,6 +68,7 @@ const App = () => {
       {path: '/class-records', element: <ClassRecords />},
       {path: '/profile/:userId', element: <ProfileView />}, // Add this line
       {path: '/profile', element: <ProfileView />}, // Add this line for current user profile
+      {path: '/birthdays', element: <Birthdays />},
     ],
     teacher: [
       { path: '/', element: <Dashboard /> },
@@ -95,6 +97,7 @@ const App = () => {
       { path: '/view-attendance', element: <ViewAttendance /> },
       {path: '/profile/:userId', element: <ProfileView />}, // Add this line
       {path: '/profile', element: <ProfileView />}, // Add this line for current user profile
+      {path: '/birthdays', element: <Birthdays />},
     ],
   };
 

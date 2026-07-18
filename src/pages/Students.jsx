@@ -253,6 +253,40 @@ const Students = () => {
       return null;
     }
   };
+
+  // Format date for display (e.g. 10-July-26)
+  const formatAdmissionDate = (dateStr) => {
+    if (!dateStr || dateStr === 'N/A' || dateStr === 'null') return 'N/A';
+
+    try {
+      let dStr = dateStr;
+      if (typeof dateStr === 'string' && /^\d{1,2}-\d{1,2}-\d{2,4}/.test(dateStr)) {
+        const [datePart, timePart] = dateStr.split(' ');
+        const parts = datePart.split('-');
+        if (parts[0].length <= 2 && parts[2].length >= 2) {
+          const day = parts[0].padStart(2, '0');
+          const month = parts[1].padStart(2, '0');
+          const year = parts[2].length === 2 ? `20${parts[2]}` : parts[2];
+          dStr = `${year}-${month}-${day}${timePart ? 'T' + timePart : ''}`;
+        }
+      }
+
+      const date = new Date(dStr);
+      if (isNaN(date.getTime())) return dateStr;
+
+      const day = date.getDate().toString().padStart(2, '0');
+      const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      const month = months[date.getMonth()];
+      const year = date.getFullYear().toString().slice(-2);
+
+      return `${day}-${month}-${year}`;
+    } catch (error) {
+      return dateStr;
+    }
+  };
   // Handler for form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -854,7 +888,7 @@ const handleEditSubmit = async (e) => {
             </span>
           </td>
           <td className="px-4 py-3 whitespace-nowrap text-base text-gray-500">
-            {student.date_of_admission}
+            {formatAdmissionDate(student.date_of_admission)}
           </td>
           <td className="px-4 py-3 whitespace-nowrap">
             <span className={`px-2 py-1 inline-flex text-base leading-5 font-semibold rounded-full
