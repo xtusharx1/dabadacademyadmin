@@ -56,6 +56,7 @@ const Birthdays = () => {
       const matchesSearch =
         student.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.present_class?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.batch_names?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.phone_number?.includes(searchTerm) ||
         student.formattedDob?.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -134,7 +135,7 @@ const Birthdays = () => {
                 <div>
                   <div className="font-bold">{student.name}</div>
                   <div className="text-xs text-purple-100">
-                    Turns {student.age} today • {student.present_class || 'Class N/A'}
+                    Turns {student.age} today • {student.batch_names || student.present_class || 'Class N/A'}
                   </div>
                 </div>
               </div>
@@ -150,7 +151,7 @@ const Birthdays = () => {
             <FiUser />
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Students Recorded</p>
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Active Batch Students</p>
             <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats.total}</p>
           </div>
         </div>
@@ -182,7 +183,7 @@ const Birthdays = () => {
           <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
           <input
             type="text"
-            placeholder="Search by student, class, DOB..."
+            placeholder="Search by student, batch, DOB..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-800 dark:text-white"
@@ -262,7 +263,7 @@ const Birthdays = () => {
                     Student Name
                   </th>
                   <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Class
+                    Active Batch
                   </th>
                   <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Date of Birth
@@ -316,7 +317,9 @@ const Birthdays = () => {
                       </td>
 
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
-                        {student.present_class || 'N/A'}
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">
+                          {student.batch_names || student.present_class || 'N/A'}
+                        </span>
                       </td>
 
                       <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-700 dark:text-gray-200">
