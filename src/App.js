@@ -9,6 +9,8 @@ import Dashboard from './pages/Dashboard';
 import Students from './pages/Students';
 import FeeRecords from './pages/FeeRecords';
 import FeeReminders from './pages/FeeReminders';
+import FeeDashboard from './pages/FeeDashboard';
+import FeeCollections from './pages/FeeCollections';
 import Course from './pages/Course';
 import TestRecords from './pages/TestRecords';
 import StudentMarks from './pages/StudentMarks';
@@ -53,6 +55,8 @@ const App = () => {
       { path: '/students', element: <Students /> },
       { path: '/fee-records', element: <FeeRecords /> },
       { path: '/fee-reminders', element: <FeeReminders /> },
+      { path: '/fee-dashboard', element: <FeeDashboard /> },
+      { path: '/fee-collections', element: <FeeCollections /> },
       { path: '/course', element: <Course /> },
       { path: '/test-records', element: <TestRecords /> },
       { path: '/user-list/:role_id', element: <UserList /> },
@@ -92,6 +96,8 @@ const App = () => {
       { path: '/student-performance', element: <StudentPerformance /> },
       { path: '/fee-records', element: <FeeRecords /> },
       { path: '/fee-reminders', element: <FeeReminders /> },
+      { path: '/fee-dashboard', element: <FeeDashboard /> },
+      { path: '/fee-collections', element: <FeeCollections /> },
       { path: '/notice', element: <Notice /> }, 
       { path: '/students', element: <Students /> },
       { path: '/view-attendance', element: <ViewAttendance /> },

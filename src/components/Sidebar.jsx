@@ -5,7 +5,8 @@ import {
   FiChevronDown, FiChevronRight, FiVideo, FiCalendar,
   FiGrid, FiLogOut, FiUserPlus, FiFile,
   FiMessageCircle, FiEdit, FiAward,
-  FiBarChart, FiClipboard, FiClock, FiUserCheck, FiMap, FiGift
+  FiBarChart, FiClipboard, FiClock, FiUserCheck, FiMap, FiGift,
+  FiPieChart, FiDollarSign
 } from 'react-icons/fi';
 
 const Sidebar = ({ role }) => {
@@ -71,6 +72,8 @@ const Sidebar = ({ role }) => {
         links: [
           { path: '/fee-records', name: 'Fee Records', icon: <FiClipboard className="text-xl" /> },
           { path: '/fee-reminders', name: 'Fee Reminders', icon: <FiClock className="text-xl" /> },
+          { path: '/fee-dashboard', name: 'Fee Dashboard', icon: <FiPieChart className="text-xl" /> },
+          { path: '/fee-collections', name: 'Collections', icon: <FiDollarSign className="text-xl" /> },
         ],
       },
       {
@@ -144,6 +147,8 @@ const Sidebar = ({ role }) => {
         links: [
           { path: '/fee-records', name: 'Fee Records', icon: <FiClipboard className="text-xl" /> },
           { path: '/fee-reminders', name: 'Fee Reminders', icon: <FiClock className="text-xl" /> },
+          { path: '/fee-dashboard', name: 'Fee Dashboard', icon: <FiPieChart className="text-xl" /> },
+          { path: '/fee-collections', name: 'Collections', icon: <FiDollarSign className="text-xl" /> },
         ],
       },
       {
