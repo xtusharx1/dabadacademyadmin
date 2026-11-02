@@ -70,10 +70,10 @@ const Sidebar = ({ role }) => {
       {
         category: 'Finance',
         links: [
-          { path: '/fee-records', name: 'Fee Records', icon: <FiClipboard className="text-xl" /> },
-          { path: '/fee-reminders', name: 'Fee Reminders', icon: <FiClock className="text-xl" /> },
           { path: '/fee-dashboard', name: 'Fee Dashboard', icon: <FiPieChart className="text-xl" /> },
           { path: '/fee-collections', name: 'Collections', icon: <FiDollarSign className="text-xl" /> },
+          { path: '/fee-records', name: 'Fee Records', icon: <FiClipboard className="text-xl" /> },
+          { path: '/fee-reminders', name: 'Fee Reminders', icon: <FiClock className="text-xl" /> },
         ],
       },
       {
@@ -145,10 +145,10 @@ const Sidebar = ({ role }) => {
       {
         category: 'Finance',
         links: [
-          { path: '/fee-records', name: 'Fee Records', icon: <FiClipboard className="text-xl" /> },
-          { path: '/fee-reminders', name: 'Fee Reminders', icon: <FiClock className="text-xl" /> },
           { path: '/fee-dashboard', name: 'Fee Dashboard', icon: <FiPieChart className="text-xl" /> },
           { path: '/fee-collections', name: 'Collections', icon: <FiDollarSign className="text-xl" /> },
+          { path: '/fee-records', name: 'Fee Records', icon: <FiClipboard className="text-xl" /> },
+          { path: '/fee-reminders', name: 'Fee Reminders', icon: <FiClock className="text-xl" /> },
         ],
       },
       {

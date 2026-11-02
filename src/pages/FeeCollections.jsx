@@ -67,8 +67,8 @@ const FeeCollections = () => {
 
   const exportRows = () => downloadCsv(
     `fee-dues-${data.as_of}.csv`,
-    ['Student', 'Phone', 'Batch', 'Total fee', 'Paid', 'Remaining', 'Next due date', 'Status'],
-    rows.map((r) => [r.name, r.phone_number, r.batch_name, r.total, r.paid, r.remaining, r.next_due_date || '', statusText(r)]),
+    ['Student', 'Phone', 'Batch', 'Left to pay', 'Next due date', 'Status'],
+    rows.map((r) => [r.name, r.phone_number, r.batch_name, r.remaining, r.next_due_date || '', statusText(r)]),
   );
 
   return (
@@ -172,21 +172,19 @@ const FeeCollections = () => {
             )}
           >
             <div className="overflow-x-auto border border-gray-100 rounded-lg">
-              <table className="w-full min-w-[900px] text-sm">
+              <table className="w-full min-w-[720px] text-sm">
                 <thead className="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide text-left">
                   <tr>
                     <th scope="col" className="px-3.5 py-3">Student</th>
                     <th scope="col" className="px-3.5 py-3">Batch</th>
-                    <th scope="col" className="px-3.5 py-3 text-right">Total fee</th>
-                    <th scope="col" className="px-3.5 py-3 text-right">Paid</th>
-                    <th scope="col" className="px-3.5 py-3 text-right">Remaining</th>
+                    <th scope="col" className="px-3.5 py-3 text-right">Left to pay</th>
                     <th scope="col" className="px-3.5 py-3">Next due</th>
                     <th scope="col" className="px-3.5 py-3">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pageRows.length === 0 && (
-                    <tr><td colSpan={7} className="px-3.5 py-6 text-center text-gray-600">No students match.</td></tr>
+                    <tr><td colSpan={5} className="px-3.5 py-6 text-center text-gray-600">No students match.</td></tr>
                   )}
                   {pageRows.map((r) => (
                     <tr key={r.fee_status_id} className="border-t border-gray-100">
@@ -195,8 +193,6 @@ const FeeCollections = () => {
                         <span className="block text-xs text-gray-600">{r.phone_number || 'No phone'}</span>
                       </td>
                       <td className="px-3.5 py-2.5">{r.batch_name}</td>
-                      <td className="px-3.5 py-2.5 text-right">{inr(r.total)}</td>
-                      <td className="px-3.5 py-2.5 text-right">{inr(r.paid)}</td>
                       <td className="px-3.5 py-2.5 text-right font-bold">{inr(r.remaining)}</td>
                       <td className="px-3.5 py-2.5">{formatDate(r.next_due_date)}</td>
                       <td className="px-3.5 py-2.5">
