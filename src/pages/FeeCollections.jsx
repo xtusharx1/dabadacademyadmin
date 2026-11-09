@@ -57,6 +57,7 @@ const FeeCollections = () => {
     nodate: data.tiles.nodate.students,
   } : {};
   const maxAgeing = data ? Math.max(1, ...data.ageing.map((g) => g.amount)) : 1;
+  const maxBatch = data && data.batches ? Math.max(1, ...data.batches.map((b) => b.outstanding)) : 1;
 
   const tiles = data ? [
     { key: 'overdue', label: 'Overdue', note: 'next due date passed', color: 'text-orange-700' },
@@ -109,6 +110,25 @@ const FeeCollections = () => {
               );
             })}
           </div>
+
+          {data.batches && data.batches.length > 0 && (
+            <Card title="Left to collect by batch" subtitle="Darker part is overdue">
+              {data.batches.map((b) => (
+                <div key={b.batch_id} className="grid gap-3 items-center text-sm" style={{ gridTemplateColumns: 'minmax(140px, 200px) minmax(0,1fr) 84px' }}>
+                  <span className="font-semibold">{b.batch_name}</span>
+                  <div className="h-3.5 bg-gray-100 rounded-full overflow-hidden flex">
+                    <div className="h-3.5 bg-orange-600" style={{ width: `${(b.overdue / maxBatch) * 100}%` }} />
+                    <div className="h-3.5 bg-orange-300" style={{ width: `${(Math.max(0, b.outstanding - b.overdue) / maxBatch) * 100}%` }} />
+                  </div>
+                  <span className="text-right font-bold">{inrShort(b.outstanding)}</span>
+                </div>
+              ))}
+              <div className="flex flex-wrap gap-5 text-[13px] text-gray-700">
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-orange-600" />Overdue</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-orange-300" />Not yet due / no date</span>
+              </div>
+            </Card>
+          )}
 
           <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))' }}>
             <Card title="Overdue by age" subtitle="Days since each student's next due date">
