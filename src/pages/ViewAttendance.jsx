@@ -12,14 +12,12 @@ const ViewAttendance = () => {
   const role = localStorage.getItem("role");
   const [year, monthNum] = month.split("-");
 
+  // Load the batch list once per role
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      
+    const fetchBatches = async () => {
       try {
         const userId = localStorage.getItem("user_id");
-  
-        // Fetch batches based on user role
+
         if (role === "admin" || role === "counselor") {
           try {
             const batchesRes = await axios.get("https://apistudents.sainikschoolcadet.com/api/batches");
@@ -42,55 +40,86 @@ const ViewAttendance = () => {
             setErrorMessage("Failed to load your assigned batches. Please try again.");
           }
         }
-  
-        if (selectedBatch && month) {
-          try {
-            // Fetch attendance data for the selected batch and month
-            const attendanceRes = await axios.get(`https://apistudents.sainikschoolcadet.com/api/attendance/batch/${selectedBatch}/month/${month}`);
-            setAttendanceData(attendanceRes.data);
-            setErrorMessage(""); // Clear previous error message
-      
-            // Fetch all students for the selected batch
-            const studentsRes = await axios.get(`https://apistudents.sainikschoolcadet.com/api/studentbatches/students/batch/${selectedBatch}`);
-            const studentsData = studentsRes.data;
-      
-            // Fetch names for each student
-            const studentsWithNames = await Promise.all(
-              studentsData.map(async (student) => {
-                try {
-                  const userRes = await axios.get(`https://apistudents.sainikschoolcadet.com/api/users/user/${student.user_id}`);
-                  return { ...student, name: userRes.data.user.name || "Unnamed" };
-                } catch (error) {
-                  console.error("Error fetching user name:", error);
-                  return { ...student, name: "Unnamed" };
-                }
-              })
-            );
-      
-            // Sort students by name
-            studentsWithNames.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-            setStudents(studentsWithNames);
-          } catch (err) {
-            console.error("Error fetching attendance data:", err);
-            if (err.response?.status === 404) {
-              setErrorMessage("No records found for the selected batch and month.");
-            } else if (err.response?.status === 500) {
-              setErrorMessage("Something went wrong on the server. Please try again later.");
-            } else {
-              setErrorMessage("Error fetching data. Please try again later.");
-            }
-          }
-        }
       } catch (err) {
-        console.error("Error in main fetchData function:", err);
+        console.error("Error fetching batches:", err);
         setErrorMessage("An unexpected error occurred. Please try again later.");
-      } finally {
-        setIsLoading(false);
       }
     };
-  
+
+    fetchBatches();
+  }, [role]);
+
+  // Load students + attendance whenever batch or month changes
+  useEffect(() => {
+    // Always clear the previous batch's grid so it can never linger
+    setStudents([]);
+    setAttendanceData([]);
+    setErrorMessage("");
+
+    if (!selectedBatch || !month) return;
+
+    let cancelled = false; // ignore responses from an older selection
+    const API = "https://apistudents.sainikschoolcadet.com/api";
+
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        // Attendance: a 404 just means nothing marked yet this month
+        const attendancePromise = axios
+          .get(`${API}/attendance/batch/${selectedBatch}/month/${month}`)
+          .then(res => res.data)
+          .catch(err => {
+            if (err.response?.status === 404) return [];
+            throw err;
+          });
+
+        // Students: a 404 means the batch has no active students
+        const studentsPromise = axios
+          .get(`${API}/studentbatches/students/batch/${selectedBatch}`)
+          .then(res => res.data)
+          .catch(err => {
+            if (err.response?.status === 404) return [];
+            throw err;
+          });
+
+        const [attendance, studentsData] = await Promise.all([attendancePromise, studentsPromise]);
+
+        const studentsWithNames = await Promise.all(
+          studentsData.map(async (student) => {
+            if (student.user?.name) return { ...student, name: student.user.name };
+            try {
+              const userRes = await axios.get(`${API}/users/user/${student.user_id}`);
+              return { ...student, name: userRes.data.user.name || "Unnamed" };
+            } catch (error) {
+              console.error("Error fetching user name:", error);
+              return { ...student, name: "Unnamed" };
+            }
+          })
+        );
+        studentsWithNames.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+
+        if (cancelled) return;
+        setAttendanceData(attendance);
+        setStudents(studentsWithNames);
+        if (attendance.length === 0 && studentsWithNames.length > 0) {
+          setErrorMessage("No attendance has been marked for this batch in the selected month.");
+        }
+      } catch (err) {
+        if (cancelled) return;
+        console.error("Error fetching attendance data:", err);
+        if (err.response?.status === 500) {
+          setErrorMessage("Something went wrong on the server. Please try again later.");
+        } else {
+          setErrorMessage("Error fetching data. Please try again later.");
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+
     fetchData();
-  }, [selectedBatch, month, role]); // Runs when batch, month, or role changes
+    return () => { cancelled = true; };
+  }, [selectedBatch, month]);
   
   const getDaysInMonth = (year, month) => {
     return new Date(year, month, 0).getDate();
