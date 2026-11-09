@@ -10,6 +10,12 @@ const Students = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const isAdmin = localStorage.getItem('role') === 'admin';
+  const [deletingStudent, setDeletingStudent] = useState(null);
+  const [deleteConfirmName, setDeleteConfirmName] = useState('');
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
   // Modal states
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -61,7 +67,7 @@ const Students = () => {
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
   // Base URL for API endpoints
-  const API_BASE_URL = "https://apistudents.sainikschoolcadet.com/api";
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://apistudents.sainikschoolcadet.com/api";
 
   // Function to fetch data with error handling
   const fetchWithErrorHandling = useCallback(async (url) => {
@@ -305,6 +311,43 @@ const Students = () => {
   };
   const handleViewProfile = (userId) => {
     window.open(`/profile/${userId}`, '_blank');
+  };
+
+  // Delete student (admin only)
+  const openDeleteModal = (student) => {
+    setDeletingStudent(student);
+    setDeleteConfirmName('');
+    setDeletePassword('');
+    setDeleteError('');
+  };
+
+  const closeDeleteModal = () => {
+    if (isDeleting) return;
+    setDeletingStudent(null);
+  };
+
+  const handleDeleteStudent = async (e) => {
+    e.preventDefault();
+    if (!deletingStudent) return;
+    setIsDeleting(true);
+    setDeleteError('');
+    try {
+      const res = await axios.delete(`${API_BASE_URL}/users/user/${deletingStudent.user_id}`, {
+        data: {
+          admin_id: localStorage.getItem('user_id'),
+          admin_password: deletePassword,
+        },
+      });
+      setStudents(prev => prev.filter(s => s.user_id !== deletingStudent.user_id));
+      setDeletingStudent(null);
+      alert(res.data?.warning
+        ? `${res.data.message}\n\n${res.data.warning}`
+        : res.data?.message || 'Student deleted');
+    } catch (err) {
+      setDeleteError(err.response?.data?.message || 'Could not delete student. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
   };
   
   // Handler for edit form input changes
@@ -910,6 +953,14 @@ const handleEditSubmit = async (e) => {
               >
                 View Profile
               </button>
+              {isAdmin && (
+                <button
+                  onClick={() => openDeleteModal(student)}
+                  className="bg-red-600 text-white py-1 px-3 rounded hover:bg-red-700 transition duration-200"
+                >
+                  Delete
+                </button>
+              )}
             </div>
           </td>
         </tr>
@@ -1001,6 +1052,66 @@ const handleEditSubmit = async (e) => {
           </div>
         </div>
       </div>
+
+      {/* Delete Student Modal (admin only) */}
+      {isAdmin && deletingStudent && (
+        <div className="fixed inset-0 z-50 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4">
+          <form onSubmit={handleDeleteStudent} className="bg-white rounded-lg max-w-md w-full p-6">
+            <h2 className="text-2xl font-bold text-red-700 mb-3">Delete student permanently</h2>
+            <p className="text-gray-700 mb-2">
+              This will permanently delete <strong>{deletingStudent.name}</strong> and all of their data:
+            </p>
+            <ul className="list-disc pl-6 text-gray-700 mb-3 text-sm">
+              <li>Profile and login</li>
+              <li>Attendance and test results</li>
+              <li>Fee status, payments and other charges</li>
+              <li>Documents and uploaded files</li>
+              <li>Batch, counselor and student-type links</li>
+            </ul>
+            <p className="text-red-700 font-semibold mb-4">This cannot be undone.</p>
+
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Type the student's name <span className="font-mono">{deletingStudent.name}</span> to confirm
+            </label>
+            <input
+              type="text"
+              value={deleteConfirmName}
+              onChange={e => setDeleteConfirmName(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2 mb-3"
+              autoFocus
+            />
+
+            <label className="block text-sm font-medium text-gray-700 mb-1">Your admin password</label>
+            <input
+              type="password"
+              value={deletePassword}
+              onChange={e => setDeletePassword(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2 mb-3"
+              autoComplete="current-password"
+            />
+
+            {deleteError && <p className="text-red-600 text-sm mb-3">{deleteError}</p>}
+
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={closeDeleteModal}
+                disabled={isDeleting}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isDeleting || !deletePassword || deleteConfirmName.trim() !== (deletingStudent.name || '').trim()}
+                className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isDeleting ? 'Deleting…' : 'Delete permanently'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Create Student Modal */}
       {showModal && (
